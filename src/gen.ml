@@ -359,7 +359,7 @@ let write_ml outc (cmi_infos : Cmi_format.cmi_infos) =
     Module_env.create ()
     |> Module_env.enter_module
          ~module_ident:
-           (Ident.create_local (cmi_infos.cmi_name |> Compilation_unit.name_as_string))
+           (Ident.create_local (cmi_infos.cmi_name))
   in
   let ts = List.filter_map cmi_infos.cmi_sign ~f:(walk ~indent:0 ~env) in
   pr "";
