@@ -363,19 +363,19 @@ module Param = struct
     Opt_arg { name; of_python; docstring }
   ;;
 
-  let int = Of_python.create ~type_name:"int" ~conv:int_of_python
-  let float = Of_python.create ~type_name:"float" ~conv:float_of_python
-  let bool = Of_python.create ~type_name:"bool" ~conv:bool_of_python
+  let int = Of_python.create ~type_name:"int" ~conv:Py.Int.to_int
+  let float = Of_python.create ~type_name:"float" ~conv:Py.Float.to_float
+  let bool = Of_python.create ~type_name:"bool" ~conv:Py.Bool.to_bool
 
   let char =
     Of_python.create ~type_name:"char" ~conv:(fun pyobject ->
-      let string = string_of_python pyobject in
+      let string = Py.String.to_string pyobject in
       match String.to_list string with
       | [ c ] -> c
       | _ -> value_errorf "expected a single character, got \"%s\"" string)
   ;;
 
-  let string = Of_python.create ~type_name:"string" ~conv:string_of_python
+  let string = Of_python.create ~type_name:"string" ~conv:Py.String.to_string
 
   let callable =
     Of_python.create ~type_name:"callback" ~conv:(fun pyobject ->
@@ -392,12 +392,12 @@ module Param = struct
 
   let path =
     Of_python.create ~type_name:"path" ~conv:(fun pyobject ->
-      try string_of_python pyobject with
+      try Py.String.to_string pyobject with
       | _ ->
         if Py.Object.is_instance pyobject (Lazy.force path_cls)
         then (
           let str = get_from_builtins "str" in
-          Py.Object.call_function_obj_args str [| pyobject |] |> string_of_python)
+          Py.Object.call_function_obj_args str [| pyobject |] |> Py.String.to_string)
         else
           value_errorf
             "expected a str or instance of Path, got %s"

@@ -75,7 +75,7 @@ module T = struct
       let index =
         match i1, i2 with
         | Some i1, Some i2 ->
-          if not (Py.Object.call_method i1 "equals" [| i2 |] |> bool_of_python)
+          if not (Py.Object.call_method i1 "equals" [| i2 |] |> Py.Bool.to_bool)
           then
             value_errorf
               "series indexes for argument(s) %s and %s differ"
