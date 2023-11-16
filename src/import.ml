@@ -1,5 +1,7 @@
 open Base
 open Poly
+include Ppx_python_runtime
+
 
 type pyobject = Pytypes.pyobject
 
@@ -21,7 +23,7 @@ let py_list_to_array_map_safe f pyobject =
   py_list_to_container_map_safe f pyobject ~container_init:(Array.init :> _ -> f:_ -> _)
 ;;
 
-(* module Of_pythonable (Pythonable : sig
+module Of_pythonable (Pythonable : sig
     type t [@@deriving python]
   end)
     (Conv : sig
@@ -37,11 +39,11 @@ end
 with type t := Conv.t = struct
   let python_of_t t = Conv.to_pythonable t |> Pythonable.python_of_t
   let t_of_python pyobject = Pythonable.t_of_python pyobject |> Conv.of_pythonable
-end *)
+end
 
 module Convert_as_string (M : Stringable.S) = struct
-  let python_of_t t = M.to_string t |> Py.String.of_string
-  let t_of_python p = Py.String.to_string p |> M.of_string
+  let python_of_t t = M.to_string t |> python_of_string
+  let t_of_python p = string_of_python p |> M.of_string
 end
 
 let get_class p =
@@ -176,7 +178,7 @@ module Or_error_python = struct
 
   let value_error_obj str =
     let value_error = get_from_builtins "ValueError" in
-    Py.Object.call_function_obj_args value_error [| Py.String.of_string str |]
+    Py.Object.call_function_obj_args value_error [| python_of_string str |]
   ;;
 
   let of_error pyobject =
@@ -186,7 +188,7 @@ module Or_error_python = struct
       Option.value_exn
         ~message:"no args field on python exception"
         (Py.Object.get_attr_string pyobject "args")
-      |> Py.List.to_list_map Py.Object.to_string
+      |> list_of_python Py.Object.to_string
       |> String.concat ~sep:", "
       |> Option.some
     else None

@@ -18,7 +18,7 @@ depends: [
   "ppx_expect"
   "ppx_here"
   "ppx_let"
-  # "ppx_python"
+  "ppx_python"
   "ppx_string"
   "stdio"
   "typerep"

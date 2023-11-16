@@ -23,7 +23,7 @@ let create_with_eval ~name ~py_source =
 
      [1]: https://docs.python.org/3/library/functions.html#compile
   *)
-  Py.Dict.set_item_string modl_dict "__file__" (Py.String.of_string "<pyml>");
+  Py.Dict.set_item_string modl_dict "__file__" (python_of_string "<pyml>");
   Py.Dict.set_item_string modl_dict "__builtins__" (Py.Eval.get_builtins ());
   let _ = Py.Run.eval ~globals:modl_dict ~locals:modl_dict ~start:File py_source in
   { module_name = name; modl }
